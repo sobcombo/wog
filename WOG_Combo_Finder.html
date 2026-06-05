@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>WOG Combo Finder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{font-family:Arial;background:#f5f5f5;margin:0;padding:18px;text-align:center;color:#222;}
+h2{margin-bottom:18px;font-size:24px;}
+.box{background:white;max-width:450px;margin:auto;padding:18px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+input{width:90%;max-width:340px;padding:12px;margin:7px 0;border-radius:8px;border:1px solid #ccc;font-size:15px;outline:none;}
+.input-row{display:flex;gap:10px;justify-content:center;}
+.input-row input{width:50%;}
+.result{margin-top:18px;text-align:left;}
+.combo{background:#fafafa;border:1px solid #e2e2e2;border-radius:10px;padding:14px;margin-bottom:14px;}
+.title{font-weight:bold;color:#1565c0;font-size:16px;line-height:1.4;}
+.wogline{color:#ef6c00;font-size:13px;font-weight:bold;margin-top:4px;}
+.sub{font-size:12px;color:#777;}
+.ac{background:#f1f1f1;border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:14px;}
+.reset-btn{margin-top:10px;padding:7px 16px;border:none;border-radius:7px;background:#e0e0e0;cursor:pointer;}
+</style>
+</head>
+<body>
+<h2>WOG Combo Finder</h2>
+<div class="box">
+<input type="number" id="tpu" placeholder="Enter TPU Amount" oninput="reverseCalc()">
+<input type="number" id="wog" placeholder="Enter World of Ganesha Amount" oninput="reverseCalc()">
+<input type="number" id="totalAmount" placeholder="Enter Total Combo Amount" oninput="reverseCalc()">
+<div class="input-row">
+<input type="number" id="adultCount" placeholder="Adults" oninput="reverseCalc()">
+<input type="number" id="childCount" placeholder="Children" oninput="reverseCalc()">
+</div>
+<button class="reset-btn" onclick="resetFields()">Reset</button>
+<div class="result" id="result">Enter amount to search...</div>
+</div>
+
+<script>
+const combos=[
+{name:"390/300 TU Explorer Combo",adultTPU:170,childTPU:80,wogRate:80,na:false},
+{name:"397/307 Adventure Combo",adultTPU:170,childTPU:80,wogRate:0,na:false},
+{name:"398/308 ECO FUN Combo",adultTPU:170,childTPU:80,wogRate:0,na:false},
+{name:"425/335 Snow Adventure Combo",adultTPU:170,childTPU:80,wogRate:0,na:false},
+{name:"499/399 Astha Combo",adultTPU:400,childTPU:300,wogRate:0,na:false},
+{name:"545/355 Shiv Ganesha Combo",adultTPU:370,childTPU:180,wogRate:75,na:false},
+{name:"600/425 Namah Combo",adultTPU:550,childTPU:375,wogRate:0,na:false},
+{name:"699/NA Ultimate Play Combo",adultTPU:170,childTPU:170,wogRate:0,na:true},
+{name:"969/794 Symbolic Combo",adultTPU:550,childTPU:375,wogRate:70,na:false},
+{name:"1099/1009 Delight Combo",adultTPU:170,childTPU:80,wogRate:75,na:false},
+{name:"1299/1109 Mini Blast Combo",adultTPU:370,childTPU:180,wogRate:75,na:false},
+{name:"1399/1224 All in Fun Combo",adultTPU:550,childTPU:375,wogRate:70,na:false},
+{name:"1500/925 Divine Rush Combo",adultTPU:1350,childTPU:775,wogRate:50,na:false},
+{name:"4199/NA Ultimate Mega Combo",adultTPU:1400,childTPU:1400,wogRate:50,na:true}
+];
+
+function reverseCalc(){
+let tpu=parseInt(document.getElementById("tpu").value)||0;
+let wog=parseInt(document.getElementById("wog").value)||0;
+let totalAmount=parseInt(document.getElementById("totalAmount").value)||0;
+let adultCount=parseInt(document.getElementById("adultCount").value);
+let childCount=parseInt(document.getElementById("childCount").value);
+
+if(tpu===0&&wog===0&&totalAmount===0&&isNaN(adultCount)&&isNaN(childCount)){
+document.getElementById("result").innerHTML="Enter amount to search..."; return;
+}
+
+let html="";
+combos.forEach(c=>{
+let parts=c.name.split("/");
+let adultPrice=parseInt(parts[0])||0;
+let childPrice=c.na?0:(parseInt(parts[1])||0);
+
+let matches=[];
+for(let pax=1;pax<=50;pax++){
+ if(c.na){
+   let a=pax,ch=0;
+   let comboTPU=a*c.adultTPU;
+   let comboTotal=a*adultPrice;
+   let comboWOG=c.wogRate>0?pax*c.wogRate:0;
+   if((tpu===0||comboTPU===tpu)&&(wog===0||comboWOG===wog)&&(totalAmount===0||comboTotal===totalAmount)&&
+      (isNaN(adultCount)||a===adultCount)&&(isNaN(childCount)||ch===childCount)){
+      matches.push({a,ch,pax,comboTPU,comboTotal,comboWOG});
+   }
+ } else {
+   for(let a=0;a<=pax;a++){
+    let ch=pax-a;
+    let comboTPU=(a*c.adultTPU)+(ch*c.childTPU);
+    let comboTotal=(a*adultPrice)+(ch*childPrice);
+    let comboWOG=c.wogRate>0?pax*c.wogRate:0;
+    if((tpu===0||comboTPU===tpu)&&(wog===0||comboWOG===wog)&&(totalAmount===0||comboTotal===totalAmount)&&
+      (isNaN(adultCount)||a===adultCount)&&(isNaN(childCount)||ch===childCount)){
+      matches.push({a,ch,pax,comboTPU,comboTotal,comboWOG});
+    }
+   }
+ }
+}
+
+if(matches.length){
+html+=`<div class="combo"><div class="title">${c.name}
+<div class="wogline">${c.wogRate>0?`Incl. WOG @ ₹${c.wogRate}`:'WOG Not Included'}</div>
+<div class="sub">Possibilities</div></div>`;
+matches.forEach(m=>{
+html+=`<div class="ac">A: ${m.a} | C: ${m.ch} | Pax: ${m.pax} | TPU: ₹${m.comboTPU} | WOG: ₹${m.comboWOG} | Total: ₹${m.comboTotal}</div>`;
+});
+html+='</div>';
+}
+});
+document.getElementById("result").innerHTML=html||"No matching combo found.";
+}
+
+function resetFields(){
+["tpu","wog","totalAmount","adultCount","childCount"].forEach(id=>document.getElementById(id).value="");
+document.getElementById("result").innerHTML="Enter amount to search...";
+}
+</script>
+</body>
+</html>
