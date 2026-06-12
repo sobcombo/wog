@@ -168,7 +168,9 @@ document.getElementById("result").innerHTML=""; return;
 }
 
 let html="";
-combos.forEach(c=>{
+ combos
+.filter(c => c.wogRate > 0)
+.forEach(c => {
 let parts=c.name.split("/");
 let adultPrice=parseInt(parts[0])||0;
 let childPrice=c.na?0:(parseInt(parts[1])||0);
