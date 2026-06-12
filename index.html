@@ -146,11 +146,14 @@ if(
 ){
 
 if(guestCount !== (adultCount + childCount)){
+
 alert(
 `Total Guests (${guestCount}) does not match Adults + Children (${adultCount + childCount})`
 );
 
 return;
+
+}
 
 }
 if(
@@ -165,7 +168,7 @@ document.getElementById("result").innerHTML=""; return;
 }
 
 let html="";
- combos
+combos
 .filter(c => c.wogRate > 0)
 .forEach(c => {
 let parts=c.name.split("/");
